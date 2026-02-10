@@ -2,66 +2,65 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>B1.4 Statistics – Exam Simulation</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulasi Ujian B1.4 Statistics</title>
 
 <style>
     body {
         margin: 0;
         font-family: Arial, Helvetica, sans-serif;
-        background: #f4f6f8;
-        color: #374151;
+        background: #f8f9fa;
+        color: #333;
+    }
+
+    header {
+        background: #0f4c75;
+        color: white;
+        padding: 16px;
+        text-align: center;
     }
 
     .container {
-        max-width: 900px;
+        max-width: 1100px;
         margin: auto;
         padding: 20px;
     }
 
-    h1, h2 {
-        text-align: center;
-        color: #111827;
+    h2 {
+        color: #0f4c75;
+    }
+
+    .hidden {
+        display: none;
     }
 
     .card {
-        background: #ffffff;
+        background: white;
         padding: 20px;
         border-radius: 8px;
         margin-bottom: 20px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
-    label {
-        font-weight: bold;
-    }
-
     input[type="text"] {
         width: 100%;
         padding: 10px;
-        margin-top: 8px;
+        font-size: 16px;
         margin-bottom: 15px;
-        border-radius: 5px;
-        border: 1px solid #d1d5db;
     }
 
     button {
-        padding: 12px 18px;
+        padding: 10px 18px;
+        font-size: 16px;
         border: none;
         border-radius: 6px;
         cursor: pointer;
-        font-size: 15px;
-        margin-top: 10px;
-    }
-
-    .btn-primary {
-        background: #2563eb;
+        background: #3282b8;
         color: white;
     }
 
-    .btn-success {
-        background: #16a34a;
-        color: white;
+    button:disabled {
+        background: #aaa;
+        cursor: not-allowed;
     }
 
     .question {
@@ -70,75 +69,100 @@
 
     .options label {
         display: block;
-        margin-bottom: 6px;
+        padding: 6px;
+        border-radius: 4px;
         cursor: pointer;
     }
 
     .correct {
-        background: #dcfce7;
-        border-left: 4px solid #16a34a;
-        padding: 8px;
-        border-radius: 4px;
+        background: #d4edda;
+        color: #155724;
     }
 
-    .incorrect {
-        background: #fee2e2;
-        border-left: 4px solid #dc2626;
-        padding: 8px;
-        border-radius: 4px;
+    .wrong {
+        background: #f8d7da;
+        color: #721c24;
     }
 
     .explanation {
         font-size: 14px;
-        margin-top: 6px;
+        background: #eef3f7;
+        padding: 10px;
+        border-left: 4px solid #0f4c75;
+        margin-top: 8px;
     }
 
     table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 10px;
     }
 
     th, td {
-        border: 1px solid #d1d5db;
+        border: 1px solid #ccc;
         padding: 8px;
         text-align: center;
     }
 
     th {
-        background: #e5e7eb;
+        background: #0f4c75;
+        color: white;
     }
 
-    @media (max-width: 600px) {
-        h1 {
-            font-size: 22px;
-        }
+    tr:hover {
+        background: #eef3f7;
+        cursor: pointer;
     }
 </style>
 </head>
 
 <body>
+
+<header>
+    <h1>Simulasi Ujian B1.4 Statistics</h1>
+    <p>PG-01 Geodesy</p>
+</header>
+
 <div class="container">
 
-<h1>B1.4 Statistics – Exam Simulation</h1>
-
-<div class="card" id="startCard">
-    <label>Candidate Name</label>
-    <input type="text" id="candidateName" placeholder="Enter your name">
-    <button class="btn-primary" onclick="startExam()">Start Exam</button>
+<!-- START PAGE -->
+<div id="startPage" class="card">
+    <h2>Mulai Ujian</h2>
+    <label>Nama Peserta:</label>
+    <input type="text" id="username" placeholder="Masukkan nama lengkap">
+    <button id="startBtn" disabled>Mulai Ujian</button>
 </div>
 
-<div class="card" id="examCard" style="display:none;"></div>
+<!-- EXAM PAGE -->
+<div id="examPage" class="hidden card">
+    <h2>Soal Ujian</h2>
+    <div id="questions"></div>
+    <button onclick="submitExam()">Submit Ujian</button>
+</div>
 
-<div class="card" id="resultCard" style="display:none;"></div>
+<!-- RESULT PAGE -->
+<div id="resultPage" class="hidden card">
+    <h2>Hasil Ujian</h2>
+    <p><strong>Nama:</strong> <span id="resultName"></span></p>
+    <p><strong>Skor Akhir:</strong> <span id="resultScore"></span></p>
+    <button onclick="reviewExam()">Review Jawaban</button>
+    <button onclick="restartExam()">Ujian Ulang</button>
+</div>
 
+<!-- REVIEW PAGE -->
+<div id="reviewPage" class="hidden card">
+    <h2>Review & Pembahasan</h2>
+    <div id="reviewContent"></div>
+</div>
+
+<!-- HISTORY -->
 <div class="card">
-    <h2>Score History</h2>
+    <h2>Riwayat Nilai</h2>
     <table>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Score</th>
+                <th>Nama</th>
+                <th>Skor</th>
+                <th>Waktu</th>
             </tr>
         </thead>
         <tbody id="historyTable"></tbody>
@@ -148,303 +172,230 @@
 </div>
 
 <script>
+/* ======================
+   QUESTION DATABASE
+====================== */
 const questions = [
 {
-q: "Which statement best describes a deterministic phenomenon?",
+q: "Which statement best describes a random phenomenon?",
 options: [
-"A phenomenon whose outcome cannot be predicted",
-"A phenomenon showing statistical regularity only in the long run",
-"A phenomenon that can be predicted perfectly using a mathematical model",
-"A phenomenon that depends on random variables"
-],
-answer: 2,
-explanation: "Deterministic phenomena allow perfect prediction when initial conditions are known."
-},
-{
-q: "A random phenomenon is characterized by:",
-options: [
-"Perfect predictability",
-"No mathematical model",
-"Unpredictable outcomes but long-run statistical regularity",
-"Complete absence of probability"
-],
-answer: 2,
-explanation: "Random phenomena cannot be predicted per trial but show regular patterns in the long run."
-},
-{
-q: "What is the sample space of rolling a fair six-sided die?",
-options: [
-"{0,1,2,3,4,5}",
-"{1,2,3,4,5,6}",
-"{Even, Odd}",
-"{Head, Tail}"
+"An event that can be predicted exactly using physical laws",
+"An event that has unpredictable outcomes but shows long-run statistical regularity",
+"An event with no mathematical model",
+"A deterministic process with measurement error"
 ],
 answer: 1,
-explanation: "The sample space is the set of all possible outcomes."
+explanation: "According to the PDF, random phenomena cannot be predicted per trial, but in the long run exhibit statistical regularity (e.g., coin toss)."
 },
 {
-q: "An event is defined as:",
+q: "Which condition is REQUIRED for using the classical probability definition P(E)=n(E)/n(S)?",
 options: [
-"All possible outcomes",
-"A subset of the sample space",
-"A random variable",
-"A probability rule"
-],
-answer: 1,
-explanation: "An event is any subset of the sample space."
-},
-{
-q: "Two events are mutually exclusive if:",
-options: [
-"They occur together frequently",
-"They share common outcomes",
-"Their intersection is empty",
-"Their union equals the sample space"
+"The sample space must be infinite",
+"Outcomes must be independent",
+"The sample space must be finite and equiprobable",
+"The event must be mutually exclusive"
 ],
 answer: 2,
-explanation: "Mutually exclusive events cannot occur at the same time."
+explanation: "The PDF explicitly states this definition applies only when the sample space is finite and all outcomes are equally likely."
 },
 {
-q: "Which formula applies to mutually exclusive events?",
+q: "Two events A and B are mutually exclusive if:",
 options: [
-"P(A ∩ B) = P(A) + P(B)",
+"P(A) = P(B)",
+"A ∩ B ≠ ∅",
+"A ∩ B = ∅",
+"A ∪ B = S"
+],
+answer: 2,
+explanation: "Mutually exclusive events have no outcomes in common, hence their intersection is the empty set."
+},
+{
+q: "What is the correct general addition rule for probability?",
+options: [
 "P(A ∪ B) = P(A) + P(B)",
 "P(A ∪ B) = P(A) − P(B)",
-"P(A) = 1 − P(B)"
+"P(A ∪ B) = P(A) + P(B) − P(A ∩ B)",
+"P(A ∩ B) = P(A) + P(B)"
+],
+answer: 2,
+explanation: "When events are not mutually exclusive, overlapping outcomes are counted twice and must be subtracted."
+},
+{
+q: "A random variable is best defined as:",
+options: [
+"A random outcome of an experiment",
+"A function assigning exactly one numerical value to each outcome",
+"A probability distribution",
+"A statistical estimator"
 ],
 answer: 1,
-explanation: "For mutually exclusive events, probabilities add directly."
+explanation: "The PDF defines a random variable as a function X: S → ℝ assigning one numerical value per sample point."
 },
 {
-q: "The complement of an event A represents:",
+q: "Which of the following is a continuous random variable?",
 options: [
-"Event A only",
-"All outcomes not in A",
-"Intersection of A and S",
-"Union of A and S"
+"Number of errors per page",
+"Number of calls received",
+"Depth measured by an echo sounder",
+"Number of people in a queue"
+],
+answer: 2,
+explanation: "Depth varies on a continuous scale, unlike countable discrete quantities."
+},
+{
+q: "Variance primarily measures:",
+options: [
+"The central location of data",
+"The symmetry of data",
+"The spread of data around the mean",
+"The probability of an event"
+],
+answer: 2,
+explanation: "Variance quantifies how observations deviate from the arithmetic mean."
+},
+{
+q: "Which statement about covariance is correct?",
+options: [
+"It indicates the strength of linear relationship in standardized units",
+"It always ranges between -1 and +1",
+"It indicates the direction of relationship but is scale-dependent",
+"It is easier to interpret than correlation"
+],
+answer: 2,
+explanation: "Covariance shows direction (positive/negative) but its magnitude depends on units."
+},
+{
+q: "Correlation differs from covariance because correlation:",
+options: [
+"Uses raw data values",
+"Is unit-dependent",
+"Is normalized and dimensionless",
+"Cannot be negative"
+],
+answer: 2,
+explanation: "Correlation standardizes covariance by dividing by the standard deviations."
+},
+{
+q: "In a normal distribution, approximately 95% of observations lie within:",
+options: [
+"±1σ from the mean",
+"±2σ from the mean",
+"±3σ from the mean",
+"±4σ from the mean"
 ],
 answer: 1,
-explanation: "The complement includes all outcomes outside event A."
-},
-{
-q: "A random variable is:",
-options: [
-"A random experiment",
-"A function assigning numbers to outcomes",
-"A probability",
-"A sample space"
-],
-answer: 1,
-explanation: "Random variables map outcomes to numerical values."
-},
-{
-q: "Which of the following is a discrete random variable?",
-options: [
-"Depth of water",
-"Length of cable",
-"Number of survey errors",
-"Time duration"
-],
-answer: 2,
-explanation: "Discrete variables take countable values."
-},
-{
-q: "Which parameter measures central tendency?",
-options: [
-"Variance",
-"Standard deviation",
-"Mean",
-"Range"
-],
-answer: 2,
-explanation: "Mean, median, and mode describe central tendency."
-},
-{
-q: "Variance measures:",
-options: [
-"Central value of data",
-"Maximum data value",
-"Spread of data around the mean",
-"Correlation between variables"
-],
-answer: 2,
-explanation: "Variance quantifies data dispersion from the mean."
-},
-{
-q: "Standard deviation is:",
-options: [
-"The square of variance",
-"The cube of variance",
-"The square root of variance",
-"Independent of variance"
-],
-answer: 2,
-explanation: "Standard deviation is the square root of variance."
-},
-{
-q: "Covariance indicates:",
-options: [
-"Exact strength of relationship",
-"Direction of relationship between variables",
-"Probability of events",
-"Distribution shape"
-],
-answer: 1,
-explanation: "Covariance shows whether variables move together or oppositely."
-},
-{
-q: "A negative covariance implies:",
-options: [
-"Variables increase together",
-"No relationship",
-"Inverse relationship",
-"Perfect correlation"
-],
-answer: 2,
-explanation: "Negative covariance indicates inverse movement."
-},
-{
-q: "Correlation coefficient ranges between:",
-options: [
-"0 and 1",
-"-∞ and +∞",
-"-1 and +1",
-"0 and 100"
-],
-answer: 2,
-explanation: "Correlation is normalized between −1 and +1."
-},
-{
-q: "A normal distribution is defined by:",
-options: [
-"Mean only",
-"Variance only",
-"Mean and standard deviation",
-"Range and median"
-],
-answer: 2,
-explanation: "Normal distribution shape depends on μ and σ."
-},
-{
-q: "Increasing standard deviation will:",
-options: [
-"Shift the curve",
-"Narrow the curve",
-"Widen the curve",
-"Change the mean"
-],
-answer: 2,
-explanation: "Standard deviation controls spread."
-},
-{
-q: "Standard normal distribution has:",
-options: [
-"μ=1, σ=0",
-"μ=0, σ=1",
-"μ=1, σ=1",
-"μ=0, σ=0"
-],
-answer: 1,
-explanation: "Standard normal distribution is normalized."
-},
-{
-q: "Z-score is calculated by:",
-options: [
-"Z = X + μ",
-"Z = μ − X",
-"Z = (X − μ) / σ",
-"Z = σ / μ"
-],
-answer: 2,
-explanation: "Z-score standardizes values."
-},
-{
-q: "Approximately what percentage of data lies within ±2σ?",
-options: [
-"68%",
-"95%",
-"99.7%",
-"50%"
-],
-answer: 1,
-explanation: "According to the empirical rule, ±2σ covers ~95%."
+explanation: "The empirical rule states that about 95% of values fall within two standard deviations."
 }
 ];
 
+/* ======================
+   STATE
+====================== */
 let userAnswers = [];
+let currentUser = "";
 
-function startExam() {
-    const name = document.getElementById("candidateName").value.trim();
-    if (!name) {
-        alert("Please enter your name before starting.");
-        return;
-    }
-    document.getElementById("startCard").style.display = "none";
-    document.getElementById("examCard").style.display = "block";
-    renderQuestions();
-}
+/* ======================
+   UI LOGIC
+====================== */
+const usernameInput = document.getElementById("username");
+const startBtn = document.getElementById("startBtn");
 
-function renderQuestions() {
-    let html = "<h2>Exam Questions</h2>";
+usernameInput.addEventListener("input", () => {
+    startBtn.disabled = usernameInput.value.trim() === "";
+});
+
+startBtn.onclick = () => {
+    currentUser = usernameInput.value.trim();
+    document.getElementById("startPage").classList.add("hidden");
+    document.getElementById("examPage").classList.remove("hidden");
+    loadQuestions();
+};
+
+function loadQuestions() {
+    const qDiv = document.getElementById("questions");
+    qDiv.innerHTML = "";
     questions.forEach((q, i) => {
-        html += `<div class="question">
-        <p><b>${i+1}. ${q.q}</b></p>
-        <div class="options">`;
+        let html = `<div class="question">
+            <p><strong>Q${i+1}.</strong> ${q.q}</p>
+            <div class="options">`;
         q.options.forEach((opt, idx) => {
             html += `
             <label>
-            <input type="radio" name="q${i}" value="${idx}">
-            ${String.fromCharCode(65+idx)}. ${opt}
+                <input type="radio" name="q${i}" value="${idx}">
+                ${String.fromCharCode(65+idx)}. ${opt}
             </label>`;
         });
-        html += `</div></div>`;
+        html += "</div></div>";
+        qDiv.innerHTML += html;
     });
-    html += `<button class="btn-primary" onclick="submitExam()">Submit Exam</button>`;
-    document.getElementById("examCard").innerHTML = html;
 }
 
 function submitExam() {
-    let correct = 0;
-    let reviewHtml = "<h2>Result & Review</h2>";
-    questions.forEach((q, i) => {
-        const selected = document.querySelector(`input[name="q${i}"]:checked`);
-        const ans = selected ? parseInt(selected.value) : -1;
-        const isCorrect = ans === q.answer;
-        if (isCorrect) correct++;
+    userAnswers = [];
+    let score = 0;
 
-        reviewHtml += `<div class="${isCorrect ? 'correct' : 'incorrect'}">
-        <b>${i+1}. ${q.q}</b><br>
-        Your answer: ${ans >= 0 ? q.options[ans] : "No answer"}<br>
-        Correct answer: ${q.options[q.answer]}
-        <div class="explanation">${q.explanation}</div>
-        </div><br>`;
+    questions.forEach((q, i) => {
+        let selected = document.querySelector(`input[name="q${i}"]:checked`);
+        let ans = selected ? parseInt(selected.value) : -1;
+        userAnswers.push(ans);
+        if (ans === q.answer) score++;
     });
 
-    const score = Math.round((correct / questions.length) * 100);
-    const name = document.getElementById("candidateName").value;
+    let finalScore = Math.round((score / questions.length) * 100);
+    let record = {
+        name: currentUser,
+        score: finalScore,
+        time: new Date().toLocaleString(),
+        answers: userAnswers
+    };
 
-    reviewHtml += `<h3>Final Score: ${score}</h3>
-    <button class="btn-success" onclick="saveScore('${name}', ${score})">Save Score</button>`;
+    let history = JSON.parse(localStorage.getItem("examHistory") || "[]");
+    history.push(record);
+    localStorage.setItem("examHistory", JSON.stringify(history));
 
-    document.getElementById("examCard").style.display = "none";
-    document.getElementById("resultCard").style.display = "block";
-    document.getElementById("resultCard").innerHTML = reviewHtml;
+    document.getElementById("examPage").classList.add("hidden");
+    document.getElementById("resultPage").classList.remove("hidden");
+    document.getElementById("resultName").innerText = currentUser;
+    document.getElementById("resultScore").innerText = finalScore;
+
+    loadHistory();
 }
 
-function saveScore(name, score) {
-    const history = JSON.parse(localStorage.getItem("statHistory") || "[]");
-    history.push({name, score});
-    localStorage.setItem("statHistory", JSON.stringify(history));
-    loadHistory();
-    alert("Score saved successfully.");
+function reviewExam() {
+    document.getElementById("resultPage").classList.add("hidden");
+    document.getElementById("reviewPage").classList.remove("hidden");
+
+    const review = document.getElementById("reviewContent");
+    review.innerHTML = "";
+
+    questions.forEach((q, i) => {
+        let html = `<div class="question">
+        <p><strong>Q${i+1}.</strong> ${q.q}</p>`;
+        q.options.forEach((opt, idx) => {
+            let cls = "";
+            if (idx === q.answer) cls = "correct";
+            if (idx === userAnswers[i] && userAnswers[i] !== q.answer) cls = "wrong";
+            html += `<div class="${cls}">${String.fromCharCode(65+idx)}. ${opt}</div>`;
+        });
+        html += `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div></div>`;
+        review.innerHTML += html;
+    });
+}
+
+function restartExam() {
+    location.reload();
 }
 
 function loadHistory() {
-    const history = JSON.parse(localStorage.getItem("statHistory") || "[]");
     const table = document.getElementById("historyTable");
     table.innerHTML = "";
+    let history = JSON.parse(localStorage.getItem("examHistory") || "[]");
     history.forEach(h => {
-        table.innerHTML += `<tr><td>${h.name}</td><td>${h.score}</td></tr>`;
+        table.innerHTML += `<tr>
+            <td>${h.name}</td>
+            <td>${h.score}</td>
+            <td>${h.time}</td>
+        </tr>`;
     });
 }
 

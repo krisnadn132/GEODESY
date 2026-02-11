@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Krisna Exam System - Geodesy Special Edition</title>
+<title>Krisna Exam System - Geodesy Admin Edition</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -32,27 +32,25 @@ h1 { margin: 0; color: var(--teal); font-size: 1.2rem; text-transform: uppercase
 
 /* GRID SYSTEM */
 .exam-grid { display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; align-items: start; }
-
-.sidebar-left, .sidebar-right { position: sticky; top: 80px; background: var(--card); padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.sidebar-left, .sidebar-right { position: sticky; top: 80px; background: var(--card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); }
 .sidebar-left { border-left: 4px solid var(--teal); }
 .sidebar-right { border-right: 4px solid var(--teal); }
 
 .timer-box { font-size: 1.8rem; font-weight: bold; text-align: center; margin: 15px 0; padding: 10px; background: var(--bg); border-radius: 5px; border: 1px solid var(--border); }
 
 .nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
-.nav-btn { padding: 8px 0; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; text-align: center; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
+.nav-btn { padding: 8px 0; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; text-align: center; cursor: pointer; font-size: 0.8rem; }
 .nav-btn.answered { background: var(--teal); color: white; border-color: var(--teal); }
 
 .option { display: block; border: 1px solid var(--border); padding: 12px 15px; border-radius: 6px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; position: relative; }
-.option:hover { background: #f8f9fa; border-color: var(--teal); }
 .option.selected { border-color: var(--teal); background: var(--teal-light); font-weight: 600; }
-
 .correct-view { background: #d4edda; border-color: #c3e6cb; color: #155724; }
 .wrong-view { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
 
-textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; resize: vertical; min-height: 100px; }
-button { background: var(--teal); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
-button:hover { opacity: 0.9; }
+button { background: var(--teal); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
+button.secondary { background: var(--muted); }
+button.danger { background: var(--wrong); }
+button.admin-btn { background: var(--admin-color); width: auto; font-size: 0.8rem; padding: 5px 10px; margin-left: 5px; }
 
 .hidden { display: none !important; }
 .badge-essay { background: #e67e22; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
@@ -68,8 +66,8 @@ button:hover { opacity: 0.9; }
 <header>
   <div class="header-inner">
     <div style="display:flex; align-items:center; gap:10px;">
-        <i class="fas fa-globe-asia" style="color:var(--teal); font-size:1.5rem;"></i>
-        <h1>Krisna Exam System</h1>
+        <i class="fas fa-satellite-dish" style="color:var(--teal); font-size:1.5rem;"></i>
+        <h1>Krisna Exam System <small style="font-size:0.6rem; opacity:0.7;">E4.1 Geodesy</small></h1>
     </div>
     <div id="userDisplay" style="font-weight:bold; color:var(--muted);"></div>
   </div>
@@ -77,29 +75,42 @@ button:hover { opacity: 0.9; }
 
 <div class="container">
   <div id="startScreen" class="card" style="max-width:500px; margin: 40px auto; text-align:center;">
-    <h2 style="color:var(--teal)">Geodesy Examination</h2>
-    <p>Please enter your name to begin.</p>
-    <input type="text" id="candidateName" placeholder="Full Name..." style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;">
-    <button onclick="login()">Enter Dashboard <i class="fas fa-sign-in-alt"></i></button>
+    <h2 style="color:var(--teal)">Candidate Login</h2>
+    <input type="text" id="candidateName" placeholder="Full Name" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;">
+    <button onclick="login()">Enter System <i class="fas fa-sign-in-alt"></i></button>
   </div>
 
   <div id="menuScreen" class="hidden">
     <div class="card">
-        <h3>Available Modules</h3>
-        <button onclick="startExam()" style="background:#fff3cd; color:#e67e22; border:2px solid #e67e22; padding:25px; font-size:1.1rem;">
-            E4.1 Modern Geodesy (4D Discipline) <br>
-            <small style="font-weight:normal;">15 Multiple Choice | 10 Essay Questions</small>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0;">Module Selection</h3>
+            <button class="secondary" style="width:auto;" onclick="location.reload()">Logout</button>
+        </div>
+        
+        <div id="adminInstruction" class="hidden" style="background:#eef; color:var(--admin-color); padding:10px; border-radius:5px; margin-bottom:15px; font-size:0.9rem;">
+            <i class="fas fa-user-shield"></i> <strong>Admin Mode:</strong> Click the module below to view the <strong>Master Answer Key</strong>.
+        </div>
+
+        <button id="mainModuleBtn" onclick="handleModuleClick()" style="background:#fff3cd; color:#e67e22; border:2px solid #e67e22; padding:25px; font-size:1.1rem; text-align:left;">
+            <i class="fas fa-book"></i> E4.1 Geodesy (4D Discipline)
         </button>
     </div>
     
     <div class="card">
-        <h3>Session History</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0;">Session History</h3>
+            <div id="adminTools" class="hidden">
+                <button class="admin-btn" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export</button>
+                <button class="admin-btn danger" onclick="clearAllData()"><i class="fas fa-trash"></i> Wipe</button>
+            </div>
+        </div>
         <div style="overflow-x:auto;">
-            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
                 <thead><tr style="background:#f8f9fa;">
                     <th style="padding:10px; border-bottom:1px solid #ddd; text-align:left;">Name</th>
                     <th style="padding:10px; border-bottom:1px solid #ddd; text-align:left;">Score</th>
                     <th style="padding:10px; border-bottom:1px solid #ddd; text-align:left;">Date</th>
+                    <th id="adminCol" class="hidden" style="padding:10px; border-bottom:1px solid #ddd; text-align:center;">Action</th>
                 </tr></thead>
                 <tbody id="histBody"></tbody>
             </table>
@@ -109,36 +120,37 @@ button:hover { opacity: 0.9; }
 
   <div id="examScreen" class="exam-grid hidden">
     <aside class="sidebar-left">
-        <h3 style="margin-top:0;">E4.1 Geodesy</h3>
-        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:5px;">Time Elapsed</p>
+        <h3 id="displayModule">E4.1 Geodesy</h3>
+        <p id="displayUser" style="font-size:0.8rem; color:var(--muted);"></p>
+        <hr>
+        <span style="font-size:0.75rem; text-transform:uppercase; color:var(--muted);">Time Elapsed</span>
         <div class="timer-box" id="timerDisplay">00:00</div>
-        <button onclick="location.reload()" style="background:var(--muted); font-size:0.8rem;">Exit Exam</button>
+        <button onclick="exitExam()" class="secondary">Exit</button>
     </aside>
 
     <section id="qBox"></section>
 
     <aside class="sidebar-right">
-        <h4 style="margin-top:0;">Question Map</h4>
+        <h4>Question Map</h4>
         <div id="navGrid" class="nav-grid"></div>
-        <button onclick="submitExam()" style="padding:15px;">SUBMIT ANSWERS <i class="fas fa-paper-plane"></i></button>
+        <button onclick="submitExam()" style="padding:15px;">SUBMIT EXAM <i class="fas fa-paper-plane"></i></button>
     </aside>
   </div>
 
   <div id="resultScreen" class="hidden card">
     <div style="text-align:center; padding:20px;">
-        <h2 id="resTitle">Performance Review</h2>
+        <h2 id="resTitle">Review</h2>
         <div id="resScore" style="font-size:4rem; color:var(--teal); font-weight:800;">0%</div>
         <p id="resInfo" style="color:var(--muted);"></p>
-        <button onclick="location.reload()" style="width:auto; padding:10px 30px;"><i class="fas fa-redo"></i> Back to Menu</button>
+        <button onclick="location.reload()" style="width:auto; padding:10px 30px;">Return to Menu</button>
     </div>
-    <hr>
     <div id="reviewBox"></div>
   </div>
 </div>
 
 <script>
+// DATABASE (15 MCQ + 10 Essay)
 const BANK = [
-    // 15 MCQ
     { q: "In modern geodesy, the inclusion of time as a coordinate dimension is fundamentally required because", o: ["GNSS satellites transmit time signals", "Earth’s gravity field is periodic", "Coordinates of points change due to tectonic motion and Earth orientation variations", "Ellipsoidal parameters depend on observation duration"], a: 2 },
     { q: "Which statement best explains why the geoid is classified as a physical surface?", o: ["It is defined by a constant Earth radius", "It is an equipotential surface of the Earth’s gravity field", "It is derived solely from GNSS observations", "It coincides exactly with the reference ellipsoid"], a: 1 },
     { q: "The primary purpose of a Coordinate Reference Frame (CRF) is to", o: ["Define mathematical properties of coordinates", "Provide theoretical assumptions for coordinate systems", "Realize a Coordinate Reference System using observed points", "Eliminate the need for datum transformations"], a: 2 },
@@ -154,8 +166,6 @@ const BANK = [
     { q: "Compared to planar distance computation, ellipsoidal distance computation is essential because", o: ["Planar methods cannot handle azimuths", "Ellipsoidal methods ignore Earth rotation", "Earth curvature and variable radii must be accounted for", "Planar methods require a datum"], a: 2 },
     { q: "In hydrographic surveying, converting GNSS heights to chart datum is necessary because", o: ["GNSS heights are referenced to mean sea level", "GNSS heights are orthometric by default", "GNSS heights are ellipsoidal and not physically meaningful for depths", "Chart datum is identical to the reference ellipsoid"], a: 2 },
     { q: "In practical surveying operations, datum transformation errors are often more dangerous than instrument errors because", o: ["Instrument errors cannot be modeled", "Datum errors introduce systematic offsets across the entire dataset", "Datum errors affect only vertical positioning", "Instrument errors propagate faster than datum errors"], a: 1 },
-    
-    // 10 ESSAY
     { q: "Explain why modern geodesy must be treated as a four-dimensional discipline and describe the operational consequences if the time component is ignored.", type: "essay", e: "Modern geodesy is four-dimensional because positions change over time due to tectonic motion, Earth rotation variations, and crustal deformation. Ignoring time (epoch) causes coordinates to be ambiguous and inconsistent, leading to systematic positioning errors, especially when integrating GNSS data collected at different epochs." },
     { q: "Distinguish clearly between the geoid and the reference ellipsoid, and explain why confusing the two leads to vertical positioning errors.", type: "essay", e: "The geoid is a physical equipotential surface of the Earth’s gravity field used as the reference for orthometric height, while the reference ellipsoid is a mathematical surface used for coordinate computation. Confusing them leads to vertical errors because GNSS heights are ellipsoidal and must be corrected by geoid undulation to obtain physically meaningful heights." },
     { q: "Why is a Coordinate Reference System (CRS) insufficient on its own for practical positioning, and how does a Coordinate Reference Frame (CRF) resolve this limitation?", type: "essay", e: "A CRS defines coordinates only conceptually through models and parameters, but it has no real-world coordinates. A CRF resolves this by realizing the CRS through observed points such as GNSS stations or quasars, enabling practical positioning and transformation." },
@@ -170,33 +180,47 @@ const BANK = [
 
 let currentUser = "";
 let userAns = {};
+let isAdmin = false;
 let timerInterval;
 let startTime;
 
 function login() {
-    currentUser = document.getElementById('candidateName').value.trim();
-    if(!currentUser) return alert("Enter Name!");
+    let inp = document.getElementById('candidateName').value.trim();
+    if(!inp) return alert("Please enter name.");
+    currentUser = inp;
+    isAdmin = (currentUser.toLowerCase() === 'krisna');
+    
     document.getElementById('startScreen').classList.add('hidden');
     document.getElementById('menuScreen').classList.remove('hidden');
-    document.getElementById('userDisplay').innerText = currentUser;
+    document.getElementById('userDisplay').innerHTML = isAdmin ? `<i class="fas fa-user-shield"></i> Krisna (Admin)` : currentUser;
+    
+    if(isAdmin) {
+        document.getElementById('adminInstruction').classList.remove('hidden');
+        document.getElementById('adminTools').classList.remove('hidden');
+        document.getElementById('adminCol').classList.remove('hidden');
+    }
     refreshHistory();
+}
+
+function handleModuleClick() {
+    if(isAdmin) showMasterKey();
+    else startExam();
 }
 
 function startExam() {
     userAns = {};
     document.getElementById('menuScreen').classList.add('hidden');
     document.getElementById('examScreen').classList.remove('hidden');
+    document.getElementById('displayUser').innerText = "Candidate: " + currentUser;
     renderQuestions();
     renderNav();
     startTime = Date.now();
-    timerInterval = setInterval(updateTimer, 1000);
-}
-
-function updateTimer() {
-    let diff = Math.floor((Date.now() - startTime) / 1000);
-    let m = Math.floor(diff/60).toString().padStart(2,'0');
-    let s = (diff%60).toString().padStart(2,'0');
-    document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+    timerInterval = setInterval(() => {
+        let diff = Math.floor((Date.now() - startTime) / 1000);
+        let m = Math.floor(diff/60).toString().padStart(2,'0');
+        let s = (diff%60).toString().padStart(2,'0');
+        document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+    }, 1000);
 }
 
 function renderQuestions() {
@@ -204,7 +228,7 @@ function renderQuestions() {
     box.innerHTML = BANK.map((q, i) => {
         let input = '';
         if(q.type === 'essay') {
-            input = `<textarea oninput="saveAns(${i}, this.value)" placeholder="Type your explanation here...">${userAns[i] || ''}</textarea>`;
+            input = `<textarea oninput="saveAns(${i}, this.value)" style="width:100%; height:120px; padding:10px; border-radius:5px; border:1px solid #ddd;">${userAns[i] || ''}</textarea>`;
         } else {
             const labels = ['A', 'B', 'C', 'D'];
             input = q.o.map((text, oi) => `
@@ -213,13 +237,9 @@ function renderQuestions() {
                 </div>
             `).join('');
         }
-        return `
-            <div class="card" id="q_${i}">
-                <p><strong>Question ${i+1}</strong> ${q.type==='essay' ? '<span class="badge-essay">ESSAY</span>' : ''}</p>
-                <p>${q.q}</p>
-                ${input}
-            </div>
-        `;
+        return `<div class="card" id="q_${i}">
+            <p><strong>Question ${i+1}</strong> ${q.type==='essay' ? '<span class="badge-essay">ESSAY</span>' : ''}</p>
+            <p>${q.q}</p>${input}</div>`;
     }).join('');
 }
 
@@ -230,12 +250,9 @@ function saveAns(idx, val) {
 }
 
 function renderNav() {
-    const grid = document.getElementById('navGrid');
-    grid.innerHTML = BANK.map((_, i) => `
+    document.getElementById('navGrid').innerHTML = BANK.map((_, i) => `
         <div class="nav-btn ${userAns.hasOwnProperty(i) && userAns[i] !== "" ? 'answered' : ''}" 
-             onclick="document.getElementById('q_${i}').scrollIntoView({behavior:'smooth', block:'center'})">
-            ${i+1}
-        </div>
+             onclick="document.getElementById('q_${i}').scrollIntoView({behavior:'smooth', block:'center'})">${i+1}</div>
     `).join('');
 }
 
@@ -243,70 +260,88 @@ function submitExam() {
     clearInterval(timerInterval);
     let score = 0;
     BANK.forEach((q, i) => {
-        if(q.type === 'essay') {
-            if(userAns[i] && userAns[i].length > 10) score++;
-        } else {
-            if(userAns[i] === q.a) score++;
-        }
+        if(q.type === 'essay') { if(userAns[i] && userAns[i].length > 10) score++; }
+        else { if(userAns[i] === q.a) score++; }
     });
-
     const pct = Math.round(score/BANK.length*100);
-    saveHistory(pct);
-    
-    document.getElementById('examScreen').classList.add('hidden');
-    document.getElementById('resultScreen').classList.remove('hidden');
-    document.getElementById('resScore').innerText = pct + "%";
-    document.getElementById('resInfo').innerText = `Scored ${score} out of ${BANK.length} items.`;
-    
-    renderReview();
+    saveRecord(pct);
+    showResult(pct, `Score: ${score}/${BANK.length}`);
 }
 
-function renderReview() {
-    const box = document.getElementById('reviewBox');
-    const labels = ['A', 'B', 'C', 'D'];
+function showResult(pct, info) {
+    document.getElementById('examScreen').classList.add('hidden');
+    document.getElementById('resultScreen').classList.remove('hidden');
+    document.getElementById('resScore').innerText = (pct === "ADMIN" ? "KEY" : pct + "%");
+    document.getElementById('resInfo').innerText = info;
     
-    box.innerHTML = BANK.map((q, i) => {
-        let content = '';
+    const labels = ['A', 'B', 'C', 'D'];
+    document.getElementById('reviewBox').innerHTML = BANK.map((q, i) => {
+        let body = '';
         if(q.type === 'essay') {
-            content = `
-                <div style="background:#fff3e0; padding:10px; border-radius:5px; margin-bottom:10px;">
-                    <strong>Your Answer:</strong><br>${userAns[i] || '<i>No Answer</i>'}
-                </div>
-                <div style="background:#e8f5e9; padding:10px; border-radius:5px;">
-                    <strong>Model Answer:</strong><br>${q.e}
-                </div>`;
+            body = `<div style="background:#fff3e0; padding:10px; margin-bottom:5px;"><strong>Your Answer:</strong> ${userAns[i] || '-'}</div>
+                    <div style="background:#e8f5e9; padding:10px;"><strong>Key:</strong> ${q.e}</div>`;
         } else {
-            content = q.o.map((text, oi) => {
-                let cls = '';
-                if(oi === q.a) cls = 'correct-view';
-                else if(userAns[i] === oi) cls = 'wrong-view';
+            body = q.o.map((text, oi) => {
+                let cls = (oi === q.a) ? 'correct-view' : (userAns[i] === oi ? 'wrong-view' : '');
                 return `<div class="option ${cls}"><strong>${labels[oi]}.</strong> ${text} ${oi === q.a ? '✓' : ''}</div>`;
             }).join('');
         }
-        
-        return `
-            <div class="card">
-                <p><strong>${i+1}. ${q.q}</strong></p>
-                ${content}
-            </div>`;
+        return `<div class="card"><p><strong>${i+1}. ${q.q}</strong></p>${body}</div>`;
     }).join('');
 }
 
-function saveHistory(s) {
-    let data = JSON.parse(localStorage.getItem('geodesy_history') || '[]');
+function showMasterKey() {
+    userAns = {};
+    showResult("ADMIN", "Viewing Official Answers for E4.1");
+    document.getElementById('resTitle').innerText = "Master Answer Key";
+}
+
+// DATA MGMT
+function saveRecord(s) {
+    let data = JSON.parse(localStorage.getItem('geodesy_ultimate_db') || '[]');
     data.push({n: currentUser, s: s, d: new Date().toLocaleString()});
-    localStorage.setItem('geodesy_history', JSON.stringify(data));
+    localStorage.setItem('geodesy_ultimate_db', JSON.stringify(data));
 }
 
 function refreshHistory() {
-    let data = JSON.parse(localStorage.getItem('geodesy_history') || '[]');
-    document.getElementById('histBody').innerHTML = data.reverse().map(h => `
+    let data = JSON.parse(localStorage.getItem('geodesy_ultimate_db') || '[]');
+    document.getElementById('histBody').innerHTML = data.map((h, i) => ({...h, idx: i})).reverse().map(h => `
         <tr>
             <td style="padding:10px; border-bottom:1px solid #eee;">${h.n}</td>
             <td style="padding:10px; border-bottom:1px solid #eee;"><strong>${h.s}%</strong></td>
             <td style="padding:10px; border-bottom:1px solid #eee;"><small>${h.d}</small></td>
+            <td class="${isAdmin?'':'hidden'}" style="text-align:center; border-bottom:1px solid #eee;">
+                <button onclick="deleteSingle(${h.idx})" style="background:none; color:red; width:auto; padding:0;"><i class="fas fa-trash"></i></button>
+            </td>
         </tr>
-    `).join('');
+    `).join('') || '<tr><td colspan="4" style="text-align:center; padding:20px; color:#999;">No records found.</td></tr>';
+}
+
+function deleteSingle(i) {
+    if(!confirm("Delete this record?")) return;
+    let data = JSON.parse(localStorage.getItem('geodesy_ultimate_db') || '[]');
+    data.splice(i, 1);
+    localStorage.setItem('geodesy_ultimate_db', JSON.stringify(data));
+    refreshHistory();
+}
+
+function clearAllData() {
+    if(!confirm("WIPE ALL DATA? This cannot be undone.")) return;
+    localStorage.removeItem('geodesy_ultimate_db');
+    refreshHistory();
+}
+
+function exportCSV() {
+    let data = JSON.parse(localStorage.getItem('geodesy_ultimate_db') || '[]');
+    let csv = "Name,Score,Date\n" + data.map(h => `${h.n},${h.s},${h.d}`).join('\n');
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+    a.download = 'Geodesy_Results.csv';
+    a.click();
+}
+
+function exitExam() {
+    if(confirm("Quit exam? Progress will be lost.")) location.reload();
 }
 </script>
 </body>

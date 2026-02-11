@@ -2,405 +2,312 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Simulasi Ujian B1.4 Statistics</title>
+<title>Krisna Exam System - Geodesy Special Edition</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: #f8f9fa;
-        color: #333;
-    }
+:root {
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --text: #2d3436;
+  --muted: #636e72;
+  --teal: #008080;
+  --teal-light: #e0f2f2;
+  --correct: #27ae60;
+  --wrong: #d63031;
+  --border: #dfe6e9;
+  --admin-color: #6c5ce7;
+}
 
-    header {
-        background: #0f4c75;
-        color: white;
-        padding: 16px;
-        text-align: center;
-    }
+* { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; }
 
-    .container {
-        max-width: 1100px;
-        margin: auto;
-        padding: 20px;
-    }
+header { background: var(--card); border-bottom: 3px solid var(--teal); box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 10px 20px; position: sticky; top: 0; z-index: 1000; }
+.header-inner { max-width: 1200px; margin: auto; display: flex; justify-content: space-between; align-items: center; }
+h1 { margin: 0; color: var(--teal); font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
 
-    h2 {
-        color: #0f4c75;
-    }
+.container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+.card { background: var(--card); border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border); }
 
-    .hidden {
-        display: none;
-    }
+/* GRID SYSTEM */
+.exam-grid { display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; align-items: start; }
 
-    .card {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
+.sidebar-left, .sidebar-right { position: sticky; top: 80px; background: var(--card); padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.sidebar-left { border-left: 4px solid var(--teal); }
+.sidebar-right { border-right: 4px solid var(--teal); }
 
-    input[type="text"] {
-        width: 100%;
-        padding: 10px;
-        font-size: 16px;
-        margin-bottom: 15px;
-    }
+.timer-box { font-size: 1.8rem; font-weight: bold; text-align: center; margin: 15px 0; padding: 10px; background: var(--bg); border-radius: 5px; border: 1px solid var(--border); }
 
-    button {
-        padding: 10px 18px;
-        font-size: 16px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        background: #3282b8;
-        color: white;
-    }
+.nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+.nav-btn { padding: 8px 0; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; text-align: center; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
+.nav-btn.answered { background: var(--teal); color: white; border-color: var(--teal); }
 
-    button:disabled {
-        background: #aaa;
-        cursor: not-allowed;
-    }
+.option { display: block; border: 1px solid var(--border); padding: 12px 15px; border-radius: 6px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; position: relative; }
+.option:hover { background: #f8f9fa; border-color: var(--teal); }
+.option.selected { border-color: var(--teal); background: var(--teal-light); font-weight: 600; }
 
-    .question {
-        margin-bottom: 18px;
-    }
+.correct-view { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+.wrong-view { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
 
-    .options label {
-        display: block;
-        padding: 6px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; resize: vertical; min-height: 100px; }
+button { background: var(--teal); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
+button:hover { opacity: 0.9; }
 
-    .correct {
-        background: #d4edda;
-        color: #155724;
-    }
+.hidden { display: none !important; }
+.badge-essay { background: #e67e22; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
 
-    .wrong {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-    .explanation {
-        font-size: 14px;
-        background: #eef3f7;
-        padding: 10px;
-        border-left: 4px solid #0f4c75;
-        margin-top: 8px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th, td {
-        border: 1px solid #ccc;
-        padding: 8px;
-        text-align: center;
-    }
-
-    th {
-        background: #0f4c75;
-        color: white;
-    }
-
-    tr:hover {
-        background: #eef3f7;
-        cursor: pointer;
-    }
+@media (max-width: 900px) {
+    .exam-grid { display: block; }
+    .sidebar-left, .sidebar-right { position: relative; top: 0; width: 100%; margin-bottom: 20px; }
+}
 </style>
 </head>
-
 <body>
 
 <header>
-    <h1>Simulasi Ujian B1.4 Statistics</h1>
-    <p>PG-01 Geodesy</p>
+  <div class="header-inner">
+    <div style="display:flex; align-items:center; gap:10px;">
+        <i class="fas fa-globe-asia" style="color:var(--teal); font-size:1.5rem;"></i>
+        <h1>Krisna Exam System</h1>
+    </div>
+    <div id="userDisplay" style="font-weight:bold; color:var(--muted);"></div>
+  </div>
 </header>
 
 <div class="container">
+  <div id="startScreen" class="card" style="max-width:500px; margin: 40px auto; text-align:center;">
+    <h2 style="color:var(--teal)">Geodesy Examination</h2>
+    <p>Please enter your name to begin.</p>
+    <input type="text" id="candidateName" placeholder="Full Name..." style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;">
+    <button onclick="login()">Enter Dashboard <i class="fas fa-sign-in-alt"></i></button>
+  </div>
 
-<!-- START PAGE -->
-<div id="startPage" class="card">
-    <h2>Mulai Ujian</h2>
-    <label>Nama Peserta:</label>
-    <input type="text" id="username" placeholder="Masukkan nama lengkap">
-    <button id="startBtn" disabled>Mulai Ujian</button>
-</div>
+  <div id="menuScreen" class="hidden">
+    <div class="card">
+        <h3>Available Modules</h3>
+        <button onclick="startExam()" style="background:#fff3cd; color:#e67e22; border:2px solid #e67e22; padding:25px; font-size:1.1rem;">
+            E4.1 Modern Geodesy (4D Discipline) <br>
+            <small style="font-weight:normal;">15 Multiple Choice | 10 Essay Questions</small>
+        </button>
+    </div>
+    
+    <div class="card">
+        <h3>Session History</h3>
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                <thead><tr style="background:#f8f9fa;">
+                    <th style="padding:10px; border-bottom:1px solid #ddd; text-align:left;">Name</th>
+                    <th style="padding:10px; border-bottom:1px solid #ddd; text-align:left;">Score</th>
+                    <th style="padding:10px; border-bottom:1px solid #ddd; text-align:left;">Date</th>
+                </tr></thead>
+                <tbody id="histBody"></tbody>
+            </table>
+        </div>
+    </div>
+  </div>
 
-<!-- EXAM PAGE -->
-<div id="examPage" class="hidden card">
-    <h2>Soal Ujian</h2>
-    <div id="questions"></div>
-    <button onclick="submitExam()">Submit Ujian</button>
-</div>
+  <div id="examScreen" class="exam-grid hidden">
+    <aside class="sidebar-left">
+        <h3 style="margin-top:0;">E4.1 Geodesy</h3>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:5px;">Time Elapsed</p>
+        <div class="timer-box" id="timerDisplay">00:00</div>
+        <button onclick="location.reload()" style="background:var(--muted); font-size:0.8rem;">Exit Exam</button>
+    </aside>
 
-<!-- RESULT PAGE -->
-<div id="resultPage" class="hidden card">
-    <h2>Hasil Ujian</h2>
-    <p><strong>Nama:</strong> <span id="resultName"></span></p>
-    <p><strong>Skor Akhir:</strong> <span id="resultScore"></span></p>
-    <button onclick="reviewExam()">Review Jawaban</button>
-    <button onclick="restartExam()">Ujian Ulang</button>
-</div>
+    <section id="qBox"></section>
 
-<!-- REVIEW PAGE -->
-<div id="reviewPage" class="hidden card">
-    <h2>Review & Pembahasan</h2>
-    <div id="reviewContent"></div>
-</div>
+    <aside class="sidebar-right">
+        <h4 style="margin-top:0;">Question Map</h4>
+        <div id="navGrid" class="nav-grid"></div>
+        <button onclick="submitExam()" style="padding:15px;">SUBMIT ANSWERS <i class="fas fa-paper-plane"></i></button>
+    </aside>
+  </div>
 
-<!-- HISTORY -->
-<div class="card">
-    <h2>Riwayat Nilai</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Nama</th>
-                <th>Skor</th>
-                <th>Waktu</th>
-            </tr>
-        </thead>
-        <tbody id="historyTable"></tbody>
-    </table>
-</div>
-
+  <div id="resultScreen" class="hidden card">
+    <div style="text-align:center; padding:20px;">
+        <h2 id="resTitle">Performance Review</h2>
+        <div id="resScore" style="font-size:4rem; color:var(--teal); font-weight:800;">0%</div>
+        <p id="resInfo" style="color:var(--muted);"></p>
+        <button onclick="location.reload()" style="width:auto; padding:10px 30px;"><i class="fas fa-redo"></i> Back to Menu</button>
+    </div>
+    <hr>
+    <div id="reviewBox"></div>
+  </div>
 </div>
 
 <script>
-/* ======================
-   QUESTION DATABASE
-====================== */
-const questions = [
-{
-q: "Which statement best describes a random phenomenon?",
-options: [
-"An event that can be predicted exactly using physical laws",
-"An event that has unpredictable outcomes but shows long-run statistical regularity",
-"An event with no mathematical model",
-"A deterministic process with measurement error"
-],
-answer: 1,
-explanation: "According to the PDF, random phenomena cannot be predicted per trial, but in the long run exhibit statistical regularity (e.g., coin toss)."
-},
-{
-q: "Which condition is REQUIRED for using the classical probability definition P(E)=n(E)/n(S)?",
-options: [
-"The sample space must be infinite",
-"Outcomes must be independent",
-"The sample space must be finite and equiprobable",
-"The event must be mutually exclusive"
-],
-answer: 2,
-explanation: "The PDF explicitly states this definition applies only when the sample space is finite and all outcomes are equally likely."
-},
-{
-q: "Two events A and B are mutually exclusive if:",
-options: [
-"P(A) = P(B)",
-"A ∩ B ≠ ∅",
-"A ∩ B = ∅",
-"A ∪ B = S"
-],
-answer: 2,
-explanation: "Mutually exclusive events have no outcomes in common, hence their intersection is the empty set."
-},
-{
-q: "What is the correct general addition rule for probability?",
-options: [
-"P(A ∪ B) = P(A) + P(B)",
-"P(A ∪ B) = P(A) − P(B)",
-"P(A ∪ B) = P(A) + P(B) − P(A ∩ B)",
-"P(A ∩ B) = P(A) + P(B)"
-],
-answer: 2,
-explanation: "When events are not mutually exclusive, overlapping outcomes are counted twice and must be subtracted."
-},
-{
-q: "A random variable is best defined as:",
-options: [
-"A random outcome of an experiment",
-"A function assigning exactly one numerical value to each outcome",
-"A probability distribution",
-"A statistical estimator"
-],
-answer: 1,
-explanation: "The PDF defines a random variable as a function X: S → ℝ assigning one numerical value per sample point."
-},
-{
-q: "Which of the following is a continuous random variable?",
-options: [
-"Number of errors per page",
-"Number of calls received",
-"Depth measured by an echo sounder",
-"Number of people in a queue"
-],
-answer: 2,
-explanation: "Depth varies on a continuous scale, unlike countable discrete quantities."
-},
-{
-q: "Variance primarily measures:",
-options: [
-"The central location of data",
-"The symmetry of data",
-"The spread of data around the mean",
-"The probability of an event"
-],
-answer: 2,
-explanation: "Variance quantifies how observations deviate from the arithmetic mean."
-},
-{
-q: "Which statement about covariance is correct?",
-options: [
-"It indicates the strength of linear relationship in standardized units",
-"It always ranges between -1 and +1",
-"It indicates the direction of relationship but is scale-dependent",
-"It is easier to interpret than correlation"
-],
-answer: 2,
-explanation: "Covariance shows direction (positive/negative) but its magnitude depends on units."
-},
-{
-q: "Correlation differs from covariance because correlation:",
-options: [
-"Uses raw data values",
-"Is unit-dependent",
-"Is normalized and dimensionless",
-"Cannot be negative"
-],
-answer: 2,
-explanation: "Correlation standardizes covariance by dividing by the standard deviations."
-},
-{
-q: "In a normal distribution, approximately 95% of observations lie within:",
-options: [
-"±1σ from the mean",
-"±2σ from the mean",
-"±3σ from the mean",
-"±4σ from the mean"
-],
-answer: 1,
-explanation: "The empirical rule states that about 95% of values fall within two standard deviations."
-}
+const BANK = [
+    // 15 MCQ
+    { q: "In modern geodesy, the inclusion of time as a coordinate dimension is fundamentally required because", o: ["GNSS satellites transmit time signals", "Earth’s gravity field is periodic", "Coordinates of points change due to tectonic motion and Earth orientation variations", "Ellipsoidal parameters depend on observation duration"], a: 2 },
+    { q: "Which statement best explains why the geoid is classified as a physical surface?", o: ["It is defined by a constant Earth radius", "It is an equipotential surface of the Earth’s gravity field", "It is derived solely from GNSS observations", "It coincides exactly with the reference ellipsoid"], a: 1 },
+    { q: "The primary purpose of a Coordinate Reference Frame (CRF) is to", o: ["Define mathematical properties of coordinates", "Provide theoretical assumptions for coordinate systems", "Realize a Coordinate Reference System using observed points", "Eliminate the need for datum transformations"], a: 2 },
+    { q: "In the Earth-Centered Earth-Fixed (ECEF) coordinate system, the origin is defined at", o: ["The Earth’s geometric center", "The center of the reference ellipsoid", "The Earth’s center of mass", "The intersection of the equator and Greenwich meridian"], a: 2 },
+    { q: "Which Earth Orientation Parameter describes the movement of the Earth’s rotation axis relative to the Earth’s crust?", o: ["Precession", "Nutation", "Polar motion", "Length of Day"], a: 2 },
+    { q: "The transformation between the Conventional Inertial System (CIS) and the Conventional Terrestrial System (CTS) must include all the following components EXCEPT", o: ["Earth rotation", "Precession", "Nutation", "Geoid undulation"], a: 3 },
+    { q: "A geodetic datum primarily establishes", o: ["The shape of the geoid", "The mathematical relationship between the Earth and the reference ellipsoid", "The local tidal reference level", "The orientation of map projections only"], a: 1 },
+    { q: "Which set of parameters is required for a full three-dimensional Helmert datum transformation?", o: ["Three translations only", "Three translations and one scale", "Three translations, three rotations, and one scale", "Two rotations and five translations"], a: 2 },
+    { q: "Why do different reference ellipsoids produce different geodetic coordinates for the same physical point?", o: ["Because Earth’s gravity field changes daily", "Because ellipsoids differ in size, shape, and orientation", "Because GNSS observations are random", "Because map projections are applied differently"], a: 1 },
+    { q: "In a semi-dynamic datum, coordinates are", o: ["Fixed permanently in time", "Updated continuously without reference epoch", "Defined at a reference epoch and adjusted using velocity models", "Independent of tectonic deformation"], a: 2 },
+    { q: "The relationship h = H + N indicates that", o: ["Orthometric height equals ellipsoidal height plus geoid height", "Ellipsoidal height equals orthometric height plus geoid undulation", "Geoid height equals orthometric height minus ellipsoidal height", "All height systems are interchangeable"], a: 1 },
+    { q: "Which radius of curvature primarily controls distance computations in the east–west direction on an ellipsoid?", o: ["Meridian radius of curvature", "Mean Earth radius", "Prime vertical radius of curvature", "Geocentric radius"], a: 2 },
+    { q: "Compared to planar distance computation, ellipsoidal distance computation is essential because", o: ["Planar methods cannot handle azimuths", "Ellipsoidal methods ignore Earth rotation", "Earth curvature and variable radii must be accounted for", "Planar methods require a datum"], a: 2 },
+    { q: "In hydrographic surveying, converting GNSS heights to chart datum is necessary because", o: ["GNSS heights are referenced to mean sea level", "GNSS heights are orthometric by default", "GNSS heights are ellipsoidal and not physically meaningful for depths", "Chart datum is identical to the reference ellipsoid"], a: 2 },
+    { q: "In practical surveying operations, datum transformation errors are often more dangerous than instrument errors because", o: ["Instrument errors cannot be modeled", "Datum errors introduce systematic offsets across the entire dataset", "Datum errors affect only vertical positioning", "Instrument errors propagate faster than datum errors"], a: 1 },
+    
+    // 10 ESSAY
+    { q: "Explain why modern geodesy must be treated as a four-dimensional discipline and describe the operational consequences if the time component is ignored.", type: "essay", e: "Modern geodesy is four-dimensional because positions change over time due to tectonic motion, Earth rotation variations, and crustal deformation. Ignoring time (epoch) causes coordinates to be ambiguous and inconsistent, leading to systematic positioning errors, especially when integrating GNSS data collected at different epochs." },
+    { q: "Distinguish clearly between the geoid and the reference ellipsoid, and explain why confusing the two leads to vertical positioning errors.", type: "essay", e: "The geoid is a physical equipotential surface of the Earth’s gravity field used as the reference for orthometric height, while the reference ellipsoid is a mathematical surface used for coordinate computation. Confusing them leads to vertical errors because GNSS heights are ellipsoidal and must be corrected by geoid undulation to obtain physically meaningful heights." },
+    { q: "Why is a Coordinate Reference System (CRS) insufficient on its own for practical positioning, and how does a Coordinate Reference Frame (CRF) resolve this limitation?", type: "essay", e: "A CRS defines coordinates only conceptually through models and parameters, but it has no real-world coordinates. A CRF resolves this by realizing the CRS through observed points such as GNSS stations or quasars, enabling practical positioning and transformation." },
+    { q: "Explain the role of Earth Orientation Parameters (EOP) in linking satellite-based observations to positions on the Earth’s surface.", type: "essay", e: "EOP describe precession, nutation, polar motion, and Earth rotation variations, which govern how the Earth is oriented in space. They enable accurate transformation between inertial satellite coordinates and Earth-fixed terrestrial coordinates, ensuring consistency between space observations and ground positions." },
+    { q: "Describe the physical meaning of the seven parameters in the Helmert transformation and why they are necessary for datum transformation.", type: "essay", e: "The three translation parameters represent shifts between datum origins, the three rotation parameters represent differences in axis orientation, and the scale parameter accounts for size differences. Together, they model how one reference ellipsoid and datum are positioned relative to another, enabling accurate coordinate transformation." },
+    { q: "Why are static geodetic datums unsuitable for countries located in active tectonic regions, and how do semi-dynamic datums address this issue?", type: "essay", e: "Static datums assume fixed coordinates, which is invalid in tectonically active regions where positions change continuously. Semi-dynamic datums address this by fixing coordinates at a reference epoch while using velocity models to transform positions from other epochs." },
+    { q: "Explain the significance of transforming coordinates between the observation domain and the calculation domain in geodesy.", type: "essay", e: "The observation domain represents real measurements tied to the Earth’s physical behavior, while the calculation domain uses an idealized ellipsoid for computation. Transformation between them ensures that real-world observations can be processed mathematically without losing physical meaning." },
+    { q: "Why does ellipsoidal distance computation differ fundamentally from planar distance computation, and in which applications is this difference critical?", type: "essay", e: "Ellipsoidal distance computation accounts for Earth’s curvature and varying radii of curvature, whereas planar computation assumes a flat surface. The difference is critical for long-distance navigation, precise geodetic control, and satellite-based positioning, where planar assumptions cause significant errors." },
+    { q: "Explain the operational importance of converting GNSS-derived ellipsoidal heights to orthometric heights in hydrographic surveying.", type: "essay", e: "GNSS provides ellipsoidal heights, but hydrographic products require depths and heights referenced to physical sea level or chart datum. Converting to orthometric height using a geoid model ensures bathymetric data are physically meaningful and safe for navigation." },
+    { q: "Discuss why geodetic transformation errors often pose a greater risk to survey accuracy than instrument measurement errors.", type: "essay", e: "Instrument errors are usually small and quantifiable, while transformation errors can introduce systematic offsets due to incorrect datum, epoch, or parameter usage. Such errors propagate consistently across datasets, potentially shifting entire surveys by meters without being immediately detected." }
 ];
 
-/* ======================
-   STATE
-====================== */
-let userAnswers = [];
 let currentUser = "";
+let userAns = {};
+let timerInterval;
+let startTime;
 
-/* ======================
-   UI LOGIC
-====================== */
-const usernameInput = document.getElementById("username");
-const startBtn = document.getElementById("startBtn");
+function login() {
+    currentUser = document.getElementById('candidateName').value.trim();
+    if(!currentUser) return alert("Enter Name!");
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('menuScreen').classList.remove('hidden');
+    document.getElementById('userDisplay').innerText = currentUser;
+    refreshHistory();
+}
 
-usernameInput.addEventListener("input", () => {
-    startBtn.disabled = usernameInput.value.trim() === "";
-});
+function startExam() {
+    userAns = {};
+    document.getElementById('menuScreen').classList.add('hidden');
+    document.getElementById('examScreen').classList.remove('hidden');
+    renderQuestions();
+    renderNav();
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 1000);
+}
 
-startBtn.onclick = () => {
-    currentUser = usernameInput.value.trim();
-    document.getElementById("startPage").classList.add("hidden");
-    document.getElementById("examPage").classList.remove("hidden");
-    loadQuestions();
-};
+function updateTimer() {
+    let diff = Math.floor((Date.now() - startTime) / 1000);
+    let m = Math.floor(diff/60).toString().padStart(2,'0');
+    let s = (diff%60).toString().padStart(2,'0');
+    document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+}
 
-function loadQuestions() {
-    const qDiv = document.getElementById("questions");
-    qDiv.innerHTML = "";
-    questions.forEach((q, i) => {
-        let html = `<div class="question">
-            <p><strong>Q${i+1}.</strong> ${q.q}</p>
-            <div class="options">`;
-        q.options.forEach((opt, idx) => {
-            html += `
-            <label>
-                <input type="radio" name="q${i}" value="${idx}">
-                ${String.fromCharCode(65+idx)}. ${opt}
-            </label>`;
-        });
-        html += "</div></div>";
-        qDiv.innerHTML += html;
-    });
+function renderQuestions() {
+    const box = document.getElementById('qBox');
+    box.innerHTML = BANK.map((q, i) => {
+        let input = '';
+        if(q.type === 'essay') {
+            input = `<textarea oninput="saveAns(${i}, this.value)" placeholder="Type your explanation here...">${userAns[i] || ''}</textarea>`;
+        } else {
+            const labels = ['A', 'B', 'C', 'D'];
+            input = q.o.map((text, oi) => `
+                <div class="option ${userAns[i] === oi ? 'selected' : ''}" onclick="saveAns(${i}, ${oi})">
+                    <strong>${labels[oi]}.</strong> ${text}
+                </div>
+            `).join('');
+        }
+        return `
+            <div class="card" id="q_${i}">
+                <p><strong>Question ${i+1}</strong> ${q.type==='essay' ? '<span class="badge-essay">ESSAY</span>' : ''}</p>
+                <p>${q.q}</p>
+                ${input}
+            </div>
+        `;
+    }).join('');
+}
+
+function saveAns(idx, val) {
+    userAns[idx] = val;
+    renderNav();
+    if(BANK[idx].type !== 'essay') renderQuestions();
+}
+
+function renderNav() {
+    const grid = document.getElementById('navGrid');
+    grid.innerHTML = BANK.map((_, i) => `
+        <div class="nav-btn ${userAns.hasOwnProperty(i) && userAns[i] !== "" ? 'answered' : ''}" 
+             onclick="document.getElementById('q_${i}').scrollIntoView({behavior:'smooth', block:'center'})">
+            ${i+1}
+        </div>
+    `).join('');
 }
 
 function submitExam() {
-    userAnswers = [];
+    clearInterval(timerInterval);
     let score = 0;
-
-    questions.forEach((q, i) => {
-        let selected = document.querySelector(`input[name="q${i}"]:checked`);
-        let ans = selected ? parseInt(selected.value) : -1;
-        userAnswers.push(ans);
-        if (ans === q.answer) score++;
+    BANK.forEach((q, i) => {
+        if(q.type === 'essay') {
+            if(userAns[i] && userAns[i].length > 10) score++;
+        } else {
+            if(userAns[i] === q.a) score++;
+        }
     });
 
-    let finalScore = Math.round((score / questions.length) * 100);
-    let record = {
-        name: currentUser,
-        score: finalScore,
-        time: new Date().toLocaleString(),
-        answers: userAnswers
-    };
-
-    let history = JSON.parse(localStorage.getItem("examHistory") || "[]");
-    history.push(record);
-    localStorage.setItem("examHistory", JSON.stringify(history));
-
-    document.getElementById("examPage").classList.add("hidden");
-    document.getElementById("resultPage").classList.remove("hidden");
-    document.getElementById("resultName").innerText = currentUser;
-    document.getElementById("resultScore").innerText = finalScore;
-
-    loadHistory();
+    const pct = Math.round(score/BANK.length*100);
+    saveHistory(pct);
+    
+    document.getElementById('examScreen').classList.add('hidden');
+    document.getElementById('resultScreen').classList.remove('hidden');
+    document.getElementById('resScore').innerText = pct + "%";
+    document.getElementById('resInfo').innerText = `Scored ${score} out of ${BANK.length} items.`;
+    
+    renderReview();
 }
 
-function reviewExam() {
-    document.getElementById("resultPage").classList.add("hidden");
-    document.getElementById("reviewPage").classList.remove("hidden");
-
-    const review = document.getElementById("reviewContent");
-    review.innerHTML = "";
-
-    questions.forEach((q, i) => {
-        let html = `<div class="question">
-        <p><strong>Q${i+1}.</strong> ${q.q}</p>`;
-        q.options.forEach((opt, idx) => {
-            let cls = "";
-            if (idx === q.answer) cls = "correct";
-            if (idx === userAnswers[i] && userAnswers[i] !== q.answer) cls = "wrong";
-            html += `<div class="${cls}">${String.fromCharCode(65+idx)}. ${opt}</div>`;
-        });
-        html += `<div class="explanation"><strong>Explanation:</strong> ${q.explanation}</div></div>`;
-        review.innerHTML += html;
-    });
+function renderReview() {
+    const box = document.getElementById('reviewBox');
+    const labels = ['A', 'B', 'C', 'D'];
+    
+    box.innerHTML = BANK.map((q, i) => {
+        let content = '';
+        if(q.type === 'essay') {
+            content = `
+                <div style="background:#fff3e0; padding:10px; border-radius:5px; margin-bottom:10px;">
+                    <strong>Your Answer:</strong><br>${userAns[i] || '<i>No Answer</i>'}
+                </div>
+                <div style="background:#e8f5e9; padding:10px; border-radius:5px;">
+                    <strong>Model Answer:</strong><br>${q.e}
+                </div>`;
+        } else {
+            content = q.o.map((text, oi) => {
+                let cls = '';
+                if(oi === q.a) cls = 'correct-view';
+                else if(userAns[i] === oi) cls = 'wrong-view';
+                return `<div class="option ${cls}"><strong>${labels[oi]}.</strong> ${text} ${oi === q.a ? '✓' : ''}</div>`;
+            }).join('');
+        }
+        
+        return `
+            <div class="card">
+                <p><strong>${i+1}. ${q.q}</strong></p>
+                ${content}
+            </div>`;
+    }).join('');
 }
 
-function restartExam() {
-    location.reload();
+function saveHistory(s) {
+    let data = JSON.parse(localStorage.getItem('geodesy_history') || '[]');
+    data.push({n: currentUser, s: s, d: new Date().toLocaleString()});
+    localStorage.setItem('geodesy_history', JSON.stringify(data));
 }
 
-function loadHistory() {
-    const table = document.getElementById("historyTable");
-    table.innerHTML = "";
-    let history = JSON.parse(localStorage.getItem("examHistory") || "[]");
-    history.forEach(h => {
-        table.innerHTML += `<tr>
-            <td>${h.name}</td>
-            <td>${h.score}</td>
-            <td>${h.time}</td>
-        </tr>`;
-    });
+function refreshHistory() {
+    let data = JSON.parse(localStorage.getItem('geodesy_history') || '[]');
+    document.getElementById('histBody').innerHTML = data.reverse().map(h => `
+        <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee;">${h.n}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;"><strong>${h.s}%</strong></td>
+            <td style="padding:10px; border-bottom:1px solid #eee;"><small>${h.d}</small></td>
+        </tr>
+    `).join('');
 }
-
-loadHistory();
 </script>
-
 </body>
 </html>
